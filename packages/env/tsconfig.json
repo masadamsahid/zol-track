@@ -1,0 +1,3 @@
+{
+  "extends": "@zol-track/config/tsconfig.base.json"
+}

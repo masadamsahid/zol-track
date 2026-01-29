@@ -1,0 +1,24 @@
+{
+  "name": "@zol-track/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@zol-track/db": "workspace:*",
+    "@zol-track/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@zol-track/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
