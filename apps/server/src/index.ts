@@ -1,9 +1,12 @@
 import { cors } from "@elysiajs/cors";
+import openapi from "@elysiajs/openapi";
 import { auth } from "@zol-track/auth";
 import { env } from "@zol-track/env/server";
 import { Elysia } from "elysia";
 
-const app = new Elysia()
+const app = new Elysia();
+
+app
   .use(
     cors({
       origin: env.CORS_ORIGIN,
@@ -12,6 +15,7 @@ const app = new Elysia()
       credentials: true,
     }),
   )
+  .use(openapi())
   .all("/api/auth/*", async (context) => {
     const { request, status } = context;
     if (["POST", "GET"].includes(request.method)) {
@@ -19,7 +23,9 @@ const app = new Elysia()
     }
     return status(405);
   })
-  .get("/", () => "OK")
-  .listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
-  });
+  .get("/", () => "OK");
+
+
+app.listen(3000, () => {
+  console.log("Server is running on http://localhost:3000");
+});
