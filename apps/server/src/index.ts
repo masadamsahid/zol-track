@@ -25,8 +25,34 @@ app
       return auth.handler(request);
     }
     return status(405);
+  }, {
+    detail: {
+      summary: "Better Auth Endpoints",
+      tags: ["Better Auth"],
+    },
   })
-  .get("/", () => "OK");
+  .macro({
+    auth: {
+      async resolve({ status, request: { headers } }) {
+        const session = await auth.api.getSession({
+          headers,
+        });
+        if (!session) return status(401);
+        return {
+          user: session.user,
+          session: session.session,
+        };
+      },
+    },
+  })
+  .get("/", (c) => {
+    console.log(c.user); // testing auth macro
+    return "OK"
+  }, { auth: true })
+  .group("/api", (app) => {
+    return app
+      .use(companiesRoutes);
+  });
 
 
 app.listen(3000, () => {
