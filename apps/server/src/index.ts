@@ -50,15 +50,17 @@ app
     //   default:
     //     return status(500, { message: 'Internal Server Error' });
     // }
-    
+
+    if (code === 'VALIDATION') {
+      set.status = 400;
+      return { message: error.message, errors: error.all };
+    }
+
     if (error instanceof HttpException) {
       set.status = error.statusCode;
-      if (code === 'VALIDATION') {
-        return { message: error.message, errors: error.all };
-      }
       return { message: error.message };
     }
-    
+
     console.log(error);
     return status(500, { message: 'Internal Server Error' });
   })
