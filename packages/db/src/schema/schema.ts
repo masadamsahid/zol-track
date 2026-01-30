@@ -58,13 +58,14 @@ export const Application = pgTable(
     location: text("location"),
     remote: WorkLocationType("remote").default("ONSITE").notNull(),
     // status: applicationStatus("status").default("LISTED").notNull(),
-    listedAt: timestamp("listed_at").notNull(),
-    appliedAt: timestamp("applied_at").notNull(),
+    listedAt: timestamp("listed_at").defaultNow().notNull(),
+    appliedAt: timestamp("applied_at"),
     interviewAt: timestamp("interview_at"),
     offerAt: timestamp("offer_at"),
     rejectedAt: timestamp("rejected_at"),
     declinedAt: timestamp("declined_at"),
     signedAt: timestamp("signed_at"),
+    archivedAt: timestamp("archived_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .$onUpdate(() => /* @__PURE__ */ new Date())
