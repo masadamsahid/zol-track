@@ -7,7 +7,9 @@ export const betterAuthMacro = new Elysia().macro({
       const session = await auth.api.getSession({
         headers,
       });
-      if (!session) return status(401);
+      // console.log("session", session);
+      
+      if (!session) return status(401, { message: "Unauthorized" });
       return {
         user: session.user,
         session: session.session,
