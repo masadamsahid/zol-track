@@ -1,8 +1,10 @@
 import { createCompanySchema, findAllCompaniesSchema } from "@/modules/companies/companies.schema";
 import Elysia from "elysia";
 import CompaniesService from "./companies.service";
+import { betterAuthMacro } from "@/macros/auth.macros";
 
-const companiesRoutes = new Elysia({ prefix: "/companies" });
+const companiesRoutes = new Elysia({ prefix: "/companies" })
+  .use(betterAuthMacro);
 
 companiesRoutes
   .post("/", async (c) => {
@@ -17,6 +19,7 @@ companiesRoutes
       summary: "Create a New Company",
       tags: ["Companies"],
     },
+    auth: true,
   })
   .get("/", async (c) => {
     const query = c.query;
@@ -60,6 +63,7 @@ companiesRoutes
       summary: 'Update Company by ID',
       tags: ["Companies"],
     },
+    auth: true,
   });
 
 export default companiesRoutes;

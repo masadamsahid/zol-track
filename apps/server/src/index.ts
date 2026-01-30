@@ -5,6 +5,7 @@ import { env } from "@zol-track/env/server";
 import { Elysia } from "elysia";
 import { httpExceptionPlugin } from "elysia-http-exception";
 import companiesRoutes from "./modules/companies";
+import { betterAuthMacro } from "./macros/auth.macros";
 
 const app = new Elysia();
 
@@ -31,20 +32,7 @@ app
       tags: ["Better Auth"],
     },
   })
-  .macro({
-    auth: {
-      async resolve({ status, request: { headers } }) {
-        const session = await auth.api.getSession({
-          headers,
-        });
-        if (!session) return status(401);
-        return {
-          user: session.user,
-          session: session.session,
-        };
-      },
-    },
-  })
+  .use(betterAuthMacro)
   .get("/", (c) => {
     console.log(c.user); // testing auth macro
     return "OK"
