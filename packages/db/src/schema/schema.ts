@@ -2,7 +2,7 @@ import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, index, integer, bigserial, serial, pgEnum } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
-export const company = pgTable(
+export const Company = pgTable(
   "companies",
   {
     id: serial("id").primaryKey(),
@@ -33,19 +33,19 @@ export const company = pgTable(
 //   "SIGNED",
 // ]);
 
-export const workLocationType = pgEnum("work_location_type", [
+export const WorkLocationType = pgEnum("work_location_type", [
   "ONSITE",
   "REMOTE",
   "HYBRID",
 ]);
 
-export const applications = pgTable(
+export const Application = pgTable(
   "applications",
   {
     id: serial("id").primaryKey(),
     companyId: integer("company_id")
       .notNull()
-      .references(() => company.id, { onDelete: "cascade" }),
+      .references(() => Company.id, { onDelete: "cascade" }),
     userId: text("user_id").notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     position: text("position").notNull(),
@@ -56,7 +56,7 @@ export const applications = pgTable(
     minSalary: bigserial("min_salary", { mode: "number" }),
     maxSalary: bigserial("max_salary", { mode: "number" }),
     location: text("location"),
-    remote: workLocationType("remote").default("ONSITE").notNull(),
+    remote: WorkLocationType("remote").default("ONSITE").notNull(),
     // status: applicationStatus("status").default("LISTED").notNull(),
     listedAt: timestamp("listed_at").notNull(),
     appliedAt: timestamp("applied_at").notNull(),
@@ -77,17 +77,17 @@ export const applications = pgTable(
   ],
 );
 
-export const companyRelations = relations(company, ({ many }) => ({
-  applications: many(applications),
+export const companyRelations = relations(Company, ({ many }) => ({
+  applications: many(Application),
 }));
 
-export const applicationsRelations = relations(applications, ({ one }) => ({
-  company: one(company, {
-    fields: [applications.companyId],
-    references: [company.id],
+export const applicationsRelations = relations(Application, ({ one }) => ({
+  company: one(Company, {
+    fields: [Application.companyId],
+    references: [Company.id],
   }),
   user: one(user, {
-    fields: [applications.userId],
+    fields: [Application.userId],
     references: [user.id],
   }),
 }));
