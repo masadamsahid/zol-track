@@ -6,6 +6,7 @@ import { Elysia } from "elysia";
 import { HttpException, httpExceptionPlugin } from "elysia-http-exception";
 import companiesRoutes from "./modules/companies";
 import { betterAuthMacro } from "./macros/auth.macros";
+import applicationsRoutes from "./modules/applications";
 
 const app = new Elysia();
 
@@ -29,7 +30,12 @@ app
             name: 'better-auth.session_token',
           },
         }
-      }
+      },
+      tags: [
+        { name: "Better Auth", description: "Endpoints related to Better Auth authentication" },
+        { name: "Applications", description: "Endpoints related to job application management" },
+        { name: "Companies", description: "Endpoints related to company management" },
+      ]
     }
   }))
   // .use(httpExceptionPlugin())
@@ -84,7 +90,8 @@ app
   .get("/health", () => "Server is healthy ")
   .group("/api", (app) => {
     return app
-      .use(companiesRoutes);
+      .use(companiesRoutes)
+      .use(applicationsRoutes);
   });
 
 
