@@ -9,9 +9,12 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
+    "@hello-pangea/dnd": "^18.0.1",
     "@tanstack/react-form": "^1.27.3",
+    "@tanstack/react-query": "^5.90.20",
     "@zol-track/auth": "workspace:*",
     "@zol-track/env": "workspace:*",
+    "axios": "^1.13.4",
     "babel-plugin-react-compiler": "^1.0.0",
     "better-auth": "catalog:",
     "class-variance-authority": "^0.7.1",
