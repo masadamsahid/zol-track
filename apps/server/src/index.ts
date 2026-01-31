@@ -32,7 +32,7 @@ app
       }
     }
   }))
-  .use(httpExceptionPlugin())
+  // .use(httpExceptionPlugin())
   .onError(({ code, error, set, status }) => {
     // if (typeof code === 'number') {
     //   if (code >= 400 && code < 600) {
@@ -50,17 +50,17 @@ app
     //   default:
     //     return status(500, { message: 'Internal Server Error' });
     // }
-
+    
     if (code === 'VALIDATION') {
       set.status = 400;
       return { message: error.message, errors: error.all };
     }
-
+    
     if (error instanceof HttpException) {
       set.status = error.statusCode;
       return { message: error.message };
     }
-
+    
     console.log(error);
     return status(500, { message: 'Internal Server Error' });
   })
