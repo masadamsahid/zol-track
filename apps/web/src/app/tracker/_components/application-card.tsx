@@ -38,7 +38,7 @@ const WorkLocationBadge = ({ type }: { type: Application["remote"] }) => {
   return (
     <span
       className={cn(
-        `inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium`,
+        `inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium`,
         className,
       )}
     >
@@ -81,7 +81,7 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`
-            group relative bg-card border border-border rounded-lg p-3.5
+            group relative bg-card border border-border p-3.5
             transition-all duration-200 ease-out
             hover:border-primary/30 hover:shadow-md hover:shadow-primary/5
             ${
@@ -93,7 +93,7 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
         >
           {/* Company Header */}
           <div className="flex items-start gap-3 mb-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden ring-1 ring-border">
+            <div className="flex-shrink-0 w-10 h-10 bg-muted flex items-center justify-center overflow-hidden ring-1 ring-border">
               {company?.logoUrl ? (
                 <img
                   src={company.logoUrl}
@@ -141,7 +141,7 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
           </div>
 
           {/* Hover Actions Indicator */}
-          <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-lg" />
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-primary from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       )}
     </Draggable>

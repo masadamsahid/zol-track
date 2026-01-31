@@ -72,7 +72,7 @@ export const COLUMN_ORDER: ApplicationStatus[] = [
     "APPLIED",
     "INTERVIEW",
     "OFFER",
-    "REJECTED",
-    "DECLINED",
     "SIGNED",
+    "DECLINED",
+    "REJECTED",
 ];
