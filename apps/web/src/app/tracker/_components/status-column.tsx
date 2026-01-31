@@ -21,7 +21,7 @@ export function KanbanColumn({ status, applications }: KanbanColumnProps) {
       {/* Column Header */}
       <div className={cn("flex items-center justify-between px-4 py-3 border-b border-border/50", config.bgColor)}>
         <div className="flex items-center gap-2.5">
-          <h3 className={`font-semibold text-sm ${config.color}`}>
+          <h3 className={cn("font-semibold text-sm", config.color)}>
             {config.title}
           </h3>
           <span
