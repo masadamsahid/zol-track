@@ -4,6 +4,8 @@ import type { APIResponse } from "./types";
 export type Application = {
   status: "LISTED" | "APPLIED" | "INTERVIEW" | "OFFER" | "SIGNED" | "REJECTED" | "DECLINED";
   id: number;
+  companyId: number | null;
+  jobDescription: string | null;
   createdAt: Date;
   updatedAt: Date | null;
   position: string;
@@ -40,6 +42,21 @@ export const getMyApplications = async (qParams?: GetMyApplicationsParams) => {
 
 export const updateApplication = async (applicationId: number, data: Partial<Omit<Application, 'id' | 'createdAt' | 'updatedAt' | 'company'>>) => {
   const response = await apiClient.put<APIResponse<Application>>(`/applications/${applicationId}`, data, {
+    withCredentials: true,
+  });
+  const resBody = response.data;
+
+  return resBody;
+}
+
+export type CreateApplicationInput = Partial<Omit<Application, 'id' | 'createdAt' | 'updatedAt' | 'company'>> & {
+  position: string;
+  remote: "ONSITE" | "REMOTE" | "HYBRID";
+  status: "LISTED" | "APPLIED" | "INTERVIEW" | "OFFER" | "SIGNED" | "REJECTED" | "DECLINED";
+}
+
+export const createApplication = async (data: CreateApplicationInput) => {
+  const response = await apiClient.post<APIResponse<Application>>('/applications', data, {
     withCredentials: true,
   });
   const resBody = response.data;

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 
 import type { ApplicationStatus } from "../types";
 import { COLUMN_ORDER } from "../types";
 import { KanbanColumn } from "./status-column";
+import { AddApplicationDialog } from "./add-application-dialog";
 import type { Application } from "@/lib/api/applications";
 import repo from "@/lib/api";
 
@@ -20,32 +21,32 @@ export function JobBoard() {
     SIGNED: [],
   });
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const data = await repo.applications.getMyApplications();
-        const mappedData: Record<ApplicationStatus, Application[]> = {
-          APPLIED: [],
-          DECLINED: [],
-          INTERVIEW: [],
-          LISTED: [],
-          OFFER: [],
-          REJECTED: [],
-          SIGNED: [],
-        };
+  const fetchApplications = useCallback(async () => {
+    try {
+      const data = await repo.applications.getMyApplications();
+      const mappedData: Record<ApplicationStatus, Application[]> = {
+        APPLIED: [],
+        DECLINED: [],
+        INTERVIEW: [],
+        LISTED: [],
+        OFFER: [],
+        REJECTED: [],
+        SIGNED: [],
+      };
 
-        data.data.forEach((app) => {
-          mappedData[app.status].push(app);
-        });
+      data.data.forEach((app) => {
+        mappedData[app.status].push(app);
+      });
 
-        setColumns(mappedData);
-      } catch (error) {
-        console.error(error);
-        alert("Failed to fetch applications.");
-      }
+      setColumns(mappedData);
+    } catch (error) {
+      console.error(error);
     }
-    fetchApplications();
   }, []);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const handleDragEnd = async (result: DropResult) => {
     const { destination, source } = result;
@@ -111,16 +112,24 @@ export function JobBoard() {
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 h-full overflow-x-auto pb-4 px-1">
-        {COLUMN_ORDER.map((status) => (
-          <KanbanColumn
-            key={status}
-            status={status}
-            applications={columns[status]}
-          />
-        ))}
+    <div className="flex flex-col h-full">
+      {/* Header with Add Button */}
+      <div className="flex justify-end pb-4">
+        <AddApplicationDialog onSuccess={fetchApplications} />
       </div>
-    </DragDropContext>
+
+      {/* Kanban Board */}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex gap-4 flex-1 overflow-x-auto pb-4 px-1">
+          {COLUMN_ORDER.map((status) => (
+            <KanbanColumn
+              key={status}
+              status={status}
+              applications={columns[status]}
+            />
+          ))}
+        </div>
+      </DragDropContext>
+    </div>
   );
 }
