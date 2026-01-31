@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Search, X, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import repo from "@/lib/api";
 import type { CreateApplicationInput } from "@/lib/api/applications";
+import type { Company } from "@/lib/api/companies";
 
 interface AddApplicationDialogProps {
 	onSuccess?: () => void;
@@ -35,6 +36,63 @@ interface AddApplicationDialogProps {
 export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Company search state
+	const [companySearch, setCompanySearch] = useState("");
+	const [companySuggestions, setCompanySuggestions] = useState<Company[]>([]);
+	const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+	const [isSearching, setIsSearching] = useState(false);
+	const [showSuggestions, setShowSuggestions] = useState(false);
+	const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	// Debounced company search
+	useEffect(() => {
+		if (!companySearch.trim() || selectedCompany) {
+			setCompanySuggestions([]);
+			return;
+		}
+
+		if (searchTimeoutRef.current) {
+			clearTimeout(searchTimeoutRef.current);
+		}
+
+		searchTimeoutRef.current = setTimeout(async () => {
+			setIsSearching(true);
+			try {
+				const result = await repo.companies.searchCompanies({
+					search: companySearch,
+					limit: 5,
+				});
+				setCompanySuggestions(result.data);
+				setShowSuggestions(true);
+			} catch (error) {
+				console.error("Failed to search companies:", error);
+			} finally {
+				setIsSearching(false);
+			}
+		}, 300);
+
+		return () => {
+			if (searchTimeoutRef.current) {
+				clearTimeout(searchTimeoutRef.current);
+			}
+		};
+	}, [companySearch, selectedCompany]);
+
+	const handleSelectCompany = (company: Company) => {
+		setSelectedCompany(company);
+		setCompanySearch(company.name);
+		setShowSuggestions(false);
+		setCompanySuggestions([]);
+	};
+
+	const handleClearCompany = () => {
+		setSelectedCompany(null);
+		setCompanySearch("");
+		setCompanySuggestions([]);
+		inputRef.current?.focus();
+	};
 
 	const form = useForm({
 		defaultValues: {
@@ -56,6 +114,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 					status: value.status,
 				};
 
+				if (selectedCompany) payload.companyId = selectedCompany.id;
 				if (value.location) payload.location = value.location;
 				if (value.salaryCurrency) payload.salaryCurrency = value.salaryCurrency;
 				if (value.minSalary) payload.minSalary = Number(value.minSalary);
@@ -66,6 +125,8 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 				toast.success("Application created successfully!");
 				setOpen(false);
 				form.reset();
+				setSelectedCompany(null);
+				setCompanySearch("");
 				onSuccess?.();
 			} catch (error) {
 				console.error(error);
@@ -134,9 +195,121 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 							</div>
 						)}
 					</form.Field>
-					
-					{/* Company */}
-					{/* TODO: Company row here */}
+
+					{/* Company Search */}
+					<div className="space-y-2">
+						<Label htmlFor="company">Company</Label>
+						<div className="relative">
+							<div className="relative">
+								<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+								<Input
+									ref={inputRef}
+									id="company"
+									placeholder="Search for a company..."
+									value={companySearch}
+									onChange={(e) => {
+										setCompanySearch(e.target.value);
+										if (selectedCompany) {
+											setSelectedCompany(null);
+										}
+									}}
+									onFocus={() => {
+										if (companySuggestions.length > 0) {
+											setShowSuggestions(true);
+										}
+									}}
+									onBlur={() => {
+										// Delay hiding to allow click on suggestion
+										setTimeout(() => setShowSuggestions(false), 150);
+									}}
+									className="pl-9 pr-9"
+									disabled={isSubmitting}
+								/>
+								{(companySearch || selectedCompany) && (
+									<button
+										type="button"
+										onClick={handleClearCompany}
+										className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									>
+										<X className="w-4 h-4" />
+									</button>
+								)}
+							</div>
+
+							{/* Loading indicator */}
+							{isSearching && (
+								<div className="absolute right-9 top-1/2 -translate-y-1/2">
+									<Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+								</div>
+							)}
+
+							{/* Suggestions dropdown */}
+							{showSuggestions && companySuggestions.length > 0 && (
+								<div className="absolute z-50 w-full mt-1 bg-popover border border-border shadow-md max-h-48 overflow-y-auto">
+									{companySuggestions.map((company) => (
+										<button
+											key={company.id}
+											type="button"
+											onClick={() => handleSelectCompany(company)}
+											className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-accent transition-colors"
+										>
+											{company.logoUrl ? (
+												<img
+													src={company.logoUrl}
+													alt={company.name}
+													className="w-8 h-8 object-contain"
+												/>
+											) : (
+												<div className="w-8 h-8 bg-muted flex items-center justify-center">
+													<Building2 className="w-4 h-4 text-muted-foreground" />
+												</div>
+											)}
+											<div className="flex-1 min-w-0">
+												<div className="text-sm font-medium truncate">{company.name}</div>
+												{company.address && (
+													<div className="text-xs text-muted-foreground truncate">{company.address}</div>
+												)}
+											</div>
+										</button>
+									))}
+								</div>
+							)}
+
+							{/* No results message */}
+							{showSuggestions && companySuggestions.length === 0 && companySearch && !isSearching && !selectedCompany && (
+								<div className="absolute z-50 w-full mt-1 bg-popover border border-border shadow-md px-3 py-2 text-sm text-muted-foreground">
+									No companies found
+								</div>
+							)}
+						</div>
+
+						{/* Selected company indicator */}
+						{selectedCompany && (
+							<div className="flex items-center gap-3 p-2 border bg-muted/30">
+								{selectedCompany.logoUrl ? (
+									<img
+										src={selectedCompany.logoUrl}
+										alt={selectedCompany.name}
+										className="w-10 h-10 object-contain bg-background p-1 border"
+									/>
+								) : (
+									<div className="w-10 h-10 bg-muted flex items-center justify-center rounded-sm border shrink-0">
+										<Building2 className="w-5 h-5 text-muted-foreground" />
+									</div>
+								)}
+								<div className="flex-1 min-w-0">
+									<div className="text-sm font-medium truncate">
+										{selectedCompany.name}
+									</div>
+									{selectedCompany.address && (
+										<div className="text-xs text-muted-foreground truncate">
+											{selectedCompany.address}
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+					</div>
 
 					{/* Location */}
 					<form.Field name="location">
@@ -208,7 +381,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 							)}
 						</form.Field>
 					</div>
-					
+
 
 					{/* Salary Row */}
 					<div className="grid grid-cols-3 gap-3">
