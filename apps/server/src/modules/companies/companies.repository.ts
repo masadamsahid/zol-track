@@ -1,6 +1,6 @@
 import { Company } from "@zol-track/db/schema/schema";
 import type { CreateCompanySchema, FindAllCompaniesSchema } from "./companies.schema";
-import { and, asc, db, eq, like } from "@zol-track/db";
+import { and, asc, db, eq, ilike, like } from "@zol-track/db";
 
 abstract class CompaniesRepository {
   static async findAll(options: FindAllCompaniesSchema) {
@@ -8,10 +8,10 @@ abstract class CompaniesRepository {
       .from(Company)
       .where(and(
         options.cursorId ? eq(Company.id, options.cursorId) : undefined,
-        options.search ? like(Company.name, `%${options.search}%`) : undefined,
+        options.search ? ilike(Company.name, `%${options.search}%`) : undefined,
       ))
       .limit(options.limit || 20)
-      .orderBy(asc(Company.id))
+      .orderBy(asc(Company.name))
       ;
     return companies;
   }
@@ -74,7 +74,7 @@ abstract class CompaniesRepository {
       .returning();
     return deleted;
   }
-  
+
   static async restoreById(id: number) {
     const [restoredCompany] = await db
       .update(Company)
@@ -83,7 +83,7 @@ abstract class CompaniesRepository {
       .returning();
     return restoredCompany;
   }
-  
+
   static async destroyById(id: number) {
     const [destroyed] = await db
       .delete(Company)
