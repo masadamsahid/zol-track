@@ -62,7 +62,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 			try {
 				const result = await repo.companies.searchCompanies({
 					search: companySearch,
-					limit: 5,
+					limit: 10,
 				});
 				setCompanySuggestions(result.data);
 				setShowSuggestions(true);
@@ -71,7 +71,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 			} finally {
 				setIsSearching(false);
 			}
-		}, 300);
+		}, 500);
 
 		return () => {
 			if (searchTimeoutRef.current) {
