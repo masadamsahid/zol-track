@@ -19,6 +19,22 @@ export interface SearchCompaniesParams {
 	cursorId?: number;
 }
 
+export interface CreateCompanyInput {
+	name: string;
+	slug: string;
+	desc?: string;
+	websiteUrl?: string;
+	logoUrl?: string;
+	address?: string;
+}
+
+export const createCompany = async (data: CreateCompanyInput) => {
+	const response = await apiClient.post<APIResponse<Company>>('/companies', data, {
+		withCredentials: true,
+	});
+	return response.data;
+};
+
 export const searchCompanies = async (params: SearchCompaniesParams = {}) => {
 	const response = await apiClient.get<APIResponse<Company[]>>('/companies', {
 		params,

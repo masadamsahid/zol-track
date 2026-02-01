@@ -14,6 +14,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { CreateCompanyDialog } from "@/components/create-company-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 	const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 	const [isSearching, setIsSearching] = useState(false);
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false);
 	const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -220,7 +222,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 									}}
 									onBlur={() => {
 										// Delay hiding to allow click on suggestion
-										setTimeout(() => setShowSuggestions(false), 150);
+										setTimeout(() => setShowSuggestions(false), 200);
 									}}
 									className="pl-9 pr-9"
 									disabled={isSubmitting}
@@ -244,8 +246,8 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 							)}
 
 							{/* Suggestions dropdown */}
-							{showSuggestions && companySuggestions.length > 0 && (
-								<div className="absolute z-50 w-full mt-1 bg-popover border border-border shadow-md max-h-48 overflow-y-auto">
+							{showSuggestions && (
+								<div className="absolute z-50 w-full mt-1 bg-popover border border-border shadow-md max-h-56 overflow-y-auto">
 									{companySuggestions.map((company) => (
 										<button
 											key={company.id}
@@ -272,15 +274,38 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 											</div>
 										</button>
 									))}
+
+									{companySearch && !isSearching && !selectedCompany && (
+										<div className="p-2 border-t border-border">
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												className="w-full justify-start text-muted-foreground hover:text-foreground"
+												onMouseDown={(e) => {
+													// Prevent input onBlur from closing suggestions too early
+													e.preventDefault();
+												}}
+												onClick={() => setIsCreateCompanyOpen(true)}
+											>
+												<Plus className="w-4 h-4 mr-2" />
+												Create "{companySearch}"
+											</Button>
+										</div>
+									)}
 								</div>
 							)}
 
-							{/* No results message */}
-							{showSuggestions && companySuggestions.length === 0 && companySearch && !isSearching && !selectedCompany && (
-								<div className="absolute z-50 w-full mt-1 bg-popover border border-border shadow-md px-3 py-2 text-sm text-muted-foreground">
-									No companies found
-								</div>
-							)}
+							<CreateCompanyDialog
+								open={isCreateCompanyOpen}
+								onOpenChange={setIsCreateCompanyOpen}
+								defaultName={companySearch}
+								onSuccess={(company) => {
+									handleSelectCompany(company);
+									setIsCreateCompanyOpen(false);
+									setShowSuggestions(false);
+								}}
+							/>
 						</div>
 
 						{/* Selected company indicator */}
