@@ -37,6 +37,21 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* job application status colors */
+  --ja-listed-text: var(--color-slate-600);
+  --ja-listed-bg: var(--color-slate-100);
+  --ja-applied-text: var(--color-blue-600);
+  --ja-applied-bg: var(--color-blue-50);
+  --ja-interview-text: var(--color-purple-600);
+  --ja-interview-bg: var(--color-purple-50);
+  --ja-offer-text: var(--color-amber-600);
+  --ja-offer-bg: var(--color-amber-50);
+  --ja-signed-text: var(--color-green-600);
+  --ja-signed-bg: var(--color-green-50);
+  --ja-declined-text: var(--color-gray-600);
+  --ja-declined-bg: var(--color-gray-100);
+  --ja-rejected-text: var(--color-red-600);
+  --ja-rejected-bg: var(--color-red-50);
 }
 
 .dark {
@@ -71,6 +86,21 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* job application status colors */
+  --ja-listed-text: var(--color-slate-300);
+  --ja-listed-bg: var(--color-slate-800);
+  --ja-applied-text: var(--color-blue-400);
+  --ja-applied-bg: var(--color-blue-950);
+  --ja-interview-text: var(--color-purple-400);
+  --ja-interview-bg: var(--color-purple-950);
+  --ja-offer-text: var(--color-amber-400);
+  --ja-offer-bg: var(--color-amber-950);
+  --ja-signed-text: var(--color-green-400);
+  --ja-signed-bg: var(--color-green-950);
+  --ja-declined-text: var(--color-gray-400);
+  --ja-declined-bg: var(--color-gray-900);
+  --ja-rejected-text: var(--color-red-400);
+  --ja-rejected-bg: var(--color-red-950);
 }
 
 @theme inline {
@@ -113,6 +143,22 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  
+  /* job application status colors */
+  --color-ja-listed-text: var(--ja-listed-text);
+  --color-ja-listed-bg: var(--ja-listed-bg);
+  --color-ja-applied-text: var(--ja-applied-text);
+  --color-ja-applied-bg: var(--ja-applied-bg);
+  --color-ja-interview-text: var(--ja-interview-text);
+  --color-ja-interview-bg: var(--ja-interview-bg);
+  --color-ja-offer-text: var(--ja-offer-text);
+  --color-ja-offer-bg: var(--ja-offer-bg);
+  --color-ja-signed-text: var(--ja-signed-text);
+  --color-ja-signed-bg: var(--ja-signed-bg);
+  --color-ja-declined-text: var(--ja-declined-text);
+  --color-ja-declined-bg: var(--ja-declined-bg);
+  --color-ja-rejected-text: var(--ja-rejected-text);
+  --color-ja-rejected-bg: var(--ja-rejected-bg);
 }
 
 @layer base {

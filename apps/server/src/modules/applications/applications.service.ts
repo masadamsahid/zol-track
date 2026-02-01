@@ -1,9 +1,9 @@
 import { NotFoundException } from "elysia-http-exception";
 import ApplicationsRepository from "./applications.repository";
-import type { FindAllApplicationsSchema } from "./applications.schema";
+import type { FindAllMyApplicationsSchema, InsertApplicationSchema } from "./applications.schema";
 
 abstract class ApplicationsService {
-  static async findAllApplicationsByUserId(userId: string, options: FindAllApplicationsSchema) {
+  static async findAllApplicationsByUserId(userId: string, options: FindAllMyApplicationsSchema) {
     const applications = await ApplicationsRepository.findAllApplicationsByUserId(userId, options);
     if (applications.length < 1) {
       throw new NotFoundException("No applications found");
@@ -19,23 +19,16 @@ abstract class ApplicationsService {
     return application;
   }
 
-  static async createApplication(data: { companyId: number; userId: string; position: string; notes?: string }) {
+  static async createApplication(data: InsertApplicationSchema & { userId: string }) {
     const newApplication = await ApplicationsRepository.insert(data);
     return newApplication;
   }
 
-  static async updateApplicationById(id: number, data: Partial<{ position: string; notes: string; location: string }>) {
+  static async updateApplicationById(id: number, data: Partial<InsertApplicationSchema>) {
     const application = await this.findApplicationById(id);
 
     const updatedApplication = await ApplicationsRepository.updateById(application.id, data);
     return updatedApplication;
-  }
-  
-  static async archiveApplicationById(id: number) {
-    const application = await this.findApplicationById(id);
-    
-    const archivedApplication = await ApplicationsRepository.archiveById(application.id);
-    return archivedApplication;
   }
 }
 

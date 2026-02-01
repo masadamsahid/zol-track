@@ -14,8 +14,7 @@ export const Company = pgTable(
     address: text("address"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => [
@@ -23,15 +22,15 @@ export const Company = pgTable(
   ],
 );
 
-// export const applicationStatus = pgEnum("job_application_status", [
-//   "LISTED",
-//   "APPLIED",
-//   "INTERVIEW",
-//   "OFFER",
-//   "REJECTED",
-//   "DECLINED",
-//   "SIGNED",
-// ]);
+export const applicationStatus = pgEnum("job_application_status", [
+  "LISTED",
+  "APPLIED",
+  "INTERVIEW",
+  "OFFER",
+  "SIGNED",
+  "REJECTED",
+  "DECLINED",
+]);
 
 export const WorkLocationType = pgEnum("work_location_type", [
   "ONSITE",
@@ -44,7 +43,6 @@ export const Application = pgTable(
   {
     id: serial("id").primaryKey(),
     companyId: integer("company_id")
-      .notNull()
       .references(() => Company.id, { onDelete: "cascade" }),
     userId: text("user_id").notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -57,19 +55,10 @@ export const Application = pgTable(
     maxSalary: bigserial("max_salary", { mode: "number" }),
     location: text("location"),
     remote: WorkLocationType("remote").default("ONSITE").notNull(),
-    // status: applicationStatus("status").default("LISTED").notNull(),
-    listedAt: timestamp("listed_at").defaultNow().notNull(),
-    appliedAt: timestamp("applied_at"),
-    interviewAt: timestamp("interview_at"),
-    offerAt: timestamp("offer_at"),
-    rejectedAt: timestamp("rejected_at"),
-    declinedAt: timestamp("declined_at"),
-    signedAt: timestamp("signed_at"),
-    archivedAt: timestamp("archived_at"),
+    status: applicationStatus("status").default("LISTED").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => [

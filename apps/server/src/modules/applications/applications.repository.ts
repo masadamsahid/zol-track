@@ -1,33 +1,55 @@
-import { and, asc, db, eq, like } from "@zol-track/db";
+import { and, asc, db, eq, ilike, inArray, like } from "@zol-track/db";
 import { Application } from "@zol-track/db/schema/schema";
-import type { FindAllApplicationsSchema } from "./applications.schema";
+import type { FindAllMyApplicationsSchema, InsertApplicationSchema } from "./applications.schema";
 
 
 abstract class ApplicationsRepository {
-  static async findAllApplicationsByUserId(userId: string, options: FindAllApplicationsSchema) {
-    const applications = await db
-      .select()
-      .from(Application)
-      .where(and(
+  static async findAllApplicationsByUserId(userId: string, options: FindAllMyApplicationsSchema) {
+    
+    const applications = await db.query.Application.findMany({
+      columns: {
+        id: true,
+        position: true,
+        notes: true,
+        salaryCurrency: true,
+        minSalary: true,
+        maxSalary: true,
+        location: true,
+        remote: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: and(
         eq(Application.userId, userId),
-        options.cursorId ? eq(Application.id, options.cursorId) : undefined,
-        options.search ? like(Application.position, `%${options.search}%`) : undefined,
-      ))
-      .limit(options.limit || 20)
-      .orderBy(asc(Application.id));
+        options.search ? ilike(Application.position, `%${options.search}%`) : undefined,
+        options.location ? ilike(Application.location, `%${options.location}%`) : undefined,
+        options.remote ? eq(Application.remote, options.remote) : undefined,
+        options.companyIds ? inArray(Application.companyId, options.companyIds) : undefined,
+      ),
+      with: {
+        company: {
+          columns: { id: true, name: true, slug: true, logoUrl: true },
+        },
+      },
+    });
+
     return applications;
   }
 
   static async findById(id: number) {
-    const [application] = await db
-      .select()
-      .from(Application)
-      .where(eq(Application.id, id))
-      .limit(1);
+    const application = await db.query.Application.findFirst({
+      where: eq(Application.id, id),
+      with: {
+        company: {
+          columns: { id: true, name: true, slug: true, logoUrl: true },
+        },
+      },
+    });
     return application;
   }
 
-  static async insert(data: { companyId: number; userId: string; position: string; notes?: string }) {
+  static async insert(data: InsertApplicationSchema & { userId: string }) {
     const [newApplication] = await db
       .insert(Application)
       .values({
@@ -35,33 +57,35 @@ abstract class ApplicationsRepository {
         userId: data.userId,
         position: data.position,
         notes: data.notes,
-      })
-      .returning();
+        salaryCurrency: data.salaryCurrency,
+        minSalary: data.minSalary,
+        maxSalary: data.maxSalary,
+        location: data.location,
+        jobDescription: data.jobDescription,
+        remote: data.remote,
+        status: data.status,
+      }).returning();
     return newApplication;
   }
-  
-  static async updateById(id: number, data: Partial<{ position: string; notes: string; location: string }>) {
+
+  static async updateById(id: number, data: Partial<InsertApplicationSchema>) {
     const [updatedApplication] = await db
       .update(Application)
       .set({
+        companyId: data.companyId,
         position: data.position,
         notes: data.notes,
+        salaryCurrency: data.salaryCurrency,
+        minSalary: data.minSalary,
+        maxSalary: data.maxSalary,
         location: data.location,
+        jobDescription: data.jobDescription,
+        remote: data.remote,
+        status: data.status,
       })
       .where(eq(Application.id, id))
       .returning();
     return updatedApplication;
-  }
-  
-  static async archiveById(id: number) {
-    const [archivedApplication] = await db
-      .update(Application)
-      .set({
-        archivedAt: new Date(),
-      })
-      .where(eq(Application.id, id))
-      .returning();
-    return archivedApplication;
   }
 }
 
