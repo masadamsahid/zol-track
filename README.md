@@ -1,5 +1,10 @@
 # Zol Track
 
+Frontend: https://zoltrack.masadamsahid.my.id
+
+Backend: https://api-zoltrack.masadamsahid.my.id
+
+
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2af8132c-3f5c-4abd-93ee-137a917f79ff" />
 
 
