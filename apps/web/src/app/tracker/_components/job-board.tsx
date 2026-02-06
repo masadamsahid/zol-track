@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
+import { Search, Filter, X } from "lucide-react";
 
 import type { ApplicationStatus } from "../types";
 import { COLUMN_ORDER } from "../types";
@@ -9,6 +10,15 @@ import { KanbanColumn } from "./status-column";
 import { AddApplicationDialog } from "./add-application-dialog";
 import type { Application } from "@/lib/api/applications";
 import repo from "@/lib/api";
+import { Input } from "@/components/ui/input";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function JobBoard() {
   const [columns, setColumns] = useState<Record<ApplicationStatus, Application[]>>({
@@ -21,9 +31,38 @@ export function JobBoard() {
     SIGNED: [],
   });
 
+  // Filter States
+  const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("");
+  const [workType, setWorkType] = useState<"ONSITE" | "REMOTE" | "HYBRID" | undefined>();
+
+  // Debounce search
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Debounce location
+  const [debouncedLocation, setDebouncedLocation] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedLocation(location);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [location]);
+
   const fetchApplications = useCallback(async () => {
     try {
-      const data = await repo.applications.getMyApplications();
+      const data = await repo.applications.getMyApplications({
+        search: debouncedSearch || undefined,
+        location: debouncedLocation || undefined,
+        remote: workType,
+      });
+
       const mappedData: Record<ApplicationStatus, Application[]> = {
         APPLIED: [],
         DECLINED: [],
@@ -42,7 +81,7 @@ export function JobBoard() {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [debouncedSearch, debouncedLocation, workType]);
 
   useEffect(() => {
     fetchApplications();
@@ -50,8 +89,6 @@ export function JobBoard() {
 
   const handleDragEnd = async (result: DropResult) => {
     const { destination, source } = result;
-
-    console.log("result", result);
 
     // Dropped outside a valid droppable
     if (!destination) return;
@@ -111,10 +148,68 @@ export function JobBoard() {
     }
   };
 
+  const hasActiveFilters = !!debouncedSearch || !!debouncedLocation || !!workType;
+
   return (
     <div className="flex flex-col h-full">
-      {/* Header with Add Button */}
-      <div className="flex justify-end pb-4">
+      {/* Header with Search, Filter & Add Button */}
+      <div className="flex items-center justify-between pb-4 gap-4">
+        <div className="flex items-center gap-2 flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search by position or company..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9"
+            />
+          </div>
+
+          <div className="flex flex-1 items-center gap-2">
+            {/* Location Filter */}
+            <div className="relative flex-1">
+              <Input
+                placeholder="Location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="h-9 text-xs"
+              />
+            </div>
+
+            {/* Work Type Filter */}
+            <Select
+              value={workType || "ALL"}
+              onValueChange={(value) => setWorkType(value === "ALL" ? undefined : value as "ONSITE" | "REMOTE" | "HYBRID")}
+            >
+              <SelectTrigger className="w-32 h-9">
+                <SelectValue placeholder="Work Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Types</SelectItem>
+                <SelectItem value="ONSITE">Onsite</SelectItem>
+                <SelectItem value="REMOTE">Remote</SelectItem>
+                <SelectItem value="HYBRID">Hybrid</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 px-2 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setSearch("");
+                  setLocation("");
+                  setWorkType(undefined);
+                }}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
+
         <AddApplicationDialog onSuccess={fetchApplications} />
       </div>
 
