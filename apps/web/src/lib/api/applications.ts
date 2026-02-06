@@ -34,6 +34,9 @@ export const getMyApplications = async (qParams?: GetMyApplicationsParams) => {
   const response = await apiClient.get<APIResponse<Application[]>>('/applications', {
     withCredentials: true,
     params: qParams,
+    paramsSerializer: {
+      indexes: null,
+    }
   });
   const resBody = response.data;
 

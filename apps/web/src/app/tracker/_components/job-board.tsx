@@ -20,6 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { CompanyFilter } from "./company-filter";
+import { toast } from "sonner";
+import { isAxiosError } from "axios";
+
 export function JobBoard() {
   const [columns, setColumns] = useState<Record<ApplicationStatus, Application[]>>({
     APPLIED: [],
@@ -35,6 +39,7 @@ export function JobBoard() {
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [workType, setWorkType] = useState<"ONSITE" | "REMOTE" | "HYBRID" | undefined>();
+  const [companyIds, setCompanyIds] = useState<number[]>([]);
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -61,6 +66,7 @@ export function JobBoard() {
         search: debouncedSearch || undefined,
         location: debouncedLocation || undefined,
         remote: workType,
+        companyIds: companyIds.length > 0 ? companyIds : undefined,
       });
 
       const mappedData: Record<ApplicationStatus, Application[]> = {
@@ -80,8 +86,28 @@ export function JobBoard() {
       setColumns(mappedData);
     } catch (error) {
       console.error(error);
+      if (isAxiosError(error)) {
+        if (error.status === 404) {
+          toast.error("No applications found");
+          setColumns({
+            APPLIED: [],
+            DECLINED: [],
+            INTERVIEW: [],
+            LISTED: [],
+            OFFER: [],
+            REJECTED: [],
+            SIGNED: [],
+          });
+          return;
+        }
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("Something went wrong");
+      }
     }
-  }, [debouncedSearch, debouncedLocation, workType]);
+  }, [debouncedSearch, debouncedLocation, workType, companyIds]);
+
+  console.log(columns);
 
   useEffect(() => {
     fetchApplications();
@@ -148,14 +174,14 @@ export function JobBoard() {
     }
   };
 
-  const hasActiveFilters = !!debouncedSearch || !!debouncedLocation || !!workType;
+  const hasActiveFilters = !!debouncedSearch || !!debouncedLocation || !!workType || companyIds.length > 0;
 
   return (
     <div className="flex flex-col h-full">
       {/* Header with Search, Filter & Add Button */}
       <div className="flex items-center justify-between pb-4 gap-4">
         <div className="flex items-center gap-2 flex-1">
-          <div className="relative flex-1">
+          <div className="relative w-1/4">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Search by position or company..."
@@ -173,6 +199,14 @@ export function JobBoard() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="h-9 text-xs"
+              />
+            </div>
+
+            {/* Company Filter*/}
+            <div className="flex-1">
+              <CompanyFilter
+                selectedCompanyIds={companyIds}
+                onSelect={setCompanyIds}
               />
             </div>
 
@@ -201,6 +235,7 @@ export function JobBoard() {
                   setSearch("");
                   setLocation("");
                   setWorkType(undefined);
+                  setCompanyIds([]);
                 }}
               >
                 <X className="w-4 h-4 mr-1" />
