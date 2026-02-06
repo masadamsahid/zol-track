@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Draggable } from "@hello-pangea/dnd";
 import { Building2, MapPin, Globe, Laptop, Building } from "lucide-react";
 
@@ -84,10 +85,9 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
             group relative bg-card border border-border p-3.5
             transition-all duration-200 ease-out
             hover:border-primary/30 hover:shadow-md hover:shadow-primary/5
-            ${
-              snapshot.isDragging
-                ? "shadow-xl shadow-primary/10 border-primary/40 ring-2 ring-primary/20 rotate-2 scale-[1.02]"
-                : ""
+            ${snapshot.isDragging
+              ? "shadow-xl shadow-primary/10 border-primary/40 ring-2 ring-primary/20 rotate-2 scale-[1.02]"
+              : ""
             }
           `}
         >
@@ -112,9 +112,12 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm text-foreground truncate leading-tight">
+              <Link
+                href={`/applications/${application.id}`}
+                className="font-semibold text-sm text-foreground truncate leading-tight hover:underline hover:text-primary transition-colors block"
+              >
                 {position}
-              </h4>
+              </Link>
               <p className="text-xs text-muted-foreground truncate mt-0.5">
                 {company?.name || "Unknown Company"}
               </p>

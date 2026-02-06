@@ -6,6 +6,7 @@ export type Application = {
   id: number;
   companyId: number | null;
   jobDescription: string | null;
+  jobUrl: string | null;
   createdAt: Date;
   updatedAt: Date | null;
   position: string;
@@ -60,6 +61,15 @@ export type CreateApplicationInput = Partial<Omit<Application, 'id' | 'createdAt
 
 export const createApplication = async (data: CreateApplicationInput) => {
   const response = await apiClient.post<APIResponse<Application>>('/applications', data, {
+    withCredentials: true,
+  });
+  const resBody = response.data;
+
+  return resBody;
+}
+
+export const getApplicationById = async (applicationId: number) => {
+  const response = await apiClient.get<APIResponse<Application>>(`/applications/${applicationId}`, {
     withCredentials: true,
   });
   const resBody = response.data;
