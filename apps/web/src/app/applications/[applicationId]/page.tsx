@@ -147,9 +147,10 @@ export default function ApplicationDetailsPage() {
 						<Separator />
 						<div className="space-y-4">
 							<h3 className="font-semibold text-lg">Job Description</h3>
-							<div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground whitespace-pre-wrap">
-								{application.jobDescription}
-							</div>
+							<div
+								className="prose lg:prose-lg xl:prose-xl dark:prose-invert max-w-none text-muted-foreground"
+								dangerouslySetInnerHTML={{ __html: application.jobDescription }}
+							/>
 						</div>
 					</>
 				) : (

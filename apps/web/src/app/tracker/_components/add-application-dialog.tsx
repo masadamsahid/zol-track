@@ -29,6 +29,7 @@ import {
 import repo from "@/lib/api";
 import type { CreateApplicationInput } from "@/lib/api/applications";
 import type { Company } from "@/lib/api/companies";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 interface AddApplicationDialogProps {
 	onSuccess?: () => void;
@@ -106,6 +107,8 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 			minSalary: "" as string,
 			maxSalary: "" as string,
 			notes: "",
+			jobUrl: "",
+			jobDescription: "",
 		},
 		onSubmit: async ({ value }) => {
 			setIsSubmitting(true);
@@ -114,6 +117,8 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 					position: value.position,
 					remote: value.remote,
 					status: value.status,
+					jobUrl: value.jobUrl || undefined,
+					jobDescription: value.jobDescription || undefined,
 				};
 
 				if (selectedCompany) payload.companyId = selectedCompany.id;
@@ -147,6 +152,8 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 				minSalary: z.string(),
 				maxSalary: z.string(),
 				notes: z.string(),
+				jobUrl: z.string(),
+				jobDescription: z.string(),
 			}),
 		},
 	});
@@ -161,7 +168,7 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 					</Button>
 				)}
 			/>
-			<DialogContent className="sm:max-w-125">
+			<DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Add New Job Application</DialogTitle>
 					<DialogDescription>
@@ -407,6 +414,21 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 						</form.Field>
 					</div>
 
+					{/* Job URL row */}
+					<form.Field name="jobUrl">
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor="jobUrl">Job URL</Label>
+								<Input
+									id="jobUrl"
+									placeholder="https://company.com/careers/job-123"
+									value={field.state.value || ""}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+							</div>
+						)}
+					</form.Field>
+
 
 					{/* Salary Row */}
 					<div className="grid grid-cols-3 gap-3">
@@ -476,6 +498,22 @@ export function AddApplicationDialog({ onSuccess }: AddApplicationDialogProps) {
 									value={field.state.value}
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
+							</div>
+						)}
+					</form.Field>
+
+					{/* Job Description URL (Rich Text) */}
+					<form.Field name="jobDescription">
+						{(field) => (
+							<div className="space-y-2">
+								<Label>Job Description</Label>
+								<div className="border rounded-md">
+									<RichTextEditor
+										value={field.state.value || ""}
+										onChange={(value) => field.handleChange(value)}
+										placeholder="Paste job description here..."
+									/>
+								</div>
 							</div>
 						)}
 					</form.Field>

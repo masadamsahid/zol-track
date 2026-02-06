@@ -57,6 +57,14 @@ export type CreateApplicationInput = Partial<Omit<Application, 'id' | 'createdAt
   position: string;
   remote: "ONSITE" | "REMOTE" | "HYBRID";
   status: "LISTED" | "APPLIED" | "INTERVIEW" | "OFFER" | "SIGNED" | "REJECTED" | "DECLINED";
+  companyId?: number;
+  notes?: string;
+  jobUrl?: string;
+  jobDescription?: string;
+  salaryCurrency?: string;
+  minSalary?: number;
+  maxSalary?: number;
+  location?: string;
 }
 
 export const createApplication = async (data: CreateApplicationInput) => {
