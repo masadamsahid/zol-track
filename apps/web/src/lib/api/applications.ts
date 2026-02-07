@@ -1,4 +1,5 @@
 import apiClient from "./axios";
+import type { Company } from "./companies";
 import type { APIResponse } from "./types";
 
 export type Application = {
@@ -16,12 +17,7 @@ export type Application = {
   maxSalary: number;
   location: string | null;
   remote: "ONSITE" | "REMOTE" | "HYBRID";
-  company: {
-    id: number;
-    name: string | null;
-    slug: string | null;
-    logoUrl: string | null;
-  } | null;
+  company: Company | null;
 }
 
 export type GetMyApplicationsParams = {

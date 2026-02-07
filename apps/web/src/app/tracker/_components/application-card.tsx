@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { Draggable } from "@hello-pangea/dnd";
-import { Building2, MapPin, Globe, Laptop, Building } from "lucide-react";
+import { Building2, MapPin, Globe, Laptop, Building, Pencil } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { Application } from "@/lib/api/applications";
+import { AddApplicationDialog } from "./add-application-dialog";
 
 interface KanbanCardProps {
   application: Application;
@@ -91,6 +92,21 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
             }
           `}
         >
+          {/* Action Buttons */}
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <AddApplicationDialog
+              application={application}
+              trigger={
+                <button
+                  className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border bg-card/80 backdrop-blur-sm"
+                  title="Edit Application"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              }
+            />
+          </div>
+
           {/* Company Header */}
           <div className="flex items-start gap-3 mb-3">
             <div className="flex-shrink-0 w-10 h-10 bg-muted flex items-center justify-center overflow-hidden ring-1 ring-border">
@@ -113,7 +129,7 @@ export function KanbanCard({ application, index }: KanbanCardProps) {
             </div>
             <div className="flex-1 min-w-0">
               <Link
-                href={`/applications/${application.id}`}
+                href={`/applications/${application.id}` as any}
                 className="font-semibold text-sm text-foreground truncate leading-tight hover:underline hover:text-primary transition-colors block"
               >
                 {position}
