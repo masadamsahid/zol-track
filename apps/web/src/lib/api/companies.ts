@@ -42,3 +42,10 @@ export const searchCompanies = async (params: SearchCompaniesParams = {}) => {
 	});
 	return response.data;
 };
+
+export const getCompanyBySlug = async (slug: string) => {
+	const response = await apiClient.get<APIResponse<Company>>(`/companies/slug/${slug}`, {
+		withCredentials: true,
+	});
+	return response.data;
+};
